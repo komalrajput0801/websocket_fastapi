@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+</head>
+<body>
+    <h1>WebSocket with FastAPI</h1>
+    <form action="" onsubmit="sendMessage(event)">
+        <input type="text" id="messageText" autocomplete="off" />
+        <button>Send</button>
+    </form>
+    <ul id='messages'>
+    </ul>
+    <script>
+        // Prompt the user for their user ID
+        const userId = prompt("Enter your user ID (e.g., user1, user2):"); 
+        var ws = new WebSocket(`ws://localhost:5000/users/${userId}`);
+        console.log("Connected")
+        ws.onmessage = function (event) {
+            console.log("message received by client" + event);
+            var messages = document.getElementById('messages')
+            var message = document.createElement('li')
+            var content = document.createTextNode(event.data)
+            message.appendChild(content)
+            messages.appendChild(message)
+        };
+        ws.onclose = function (event) {
+            console.log("WebSocket connection closed", event.code, event.reason);
+            // reconnect 
+            ws=new WebSocket(`ws://localhost:5000/users/${userId}`);
+            console.log("Server reconnected")
+        };
+        console.log("Send Mesage")
+        function sendMessage(event) {
+            var input = document.getElementById("messageText")
+            ws.send(input.value)
+            console.log("message sent by client")
+            input.value = ''
+            event.preventDefault()
+        }
+    </script>
+</body>
+</html>
